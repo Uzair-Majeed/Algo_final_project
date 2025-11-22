@@ -1,0 +1,50 @@
+[
+  {
+    "num_nodes": 50,
+    "num_edges": 100,
+    "num_vehicles": 2,
+    "avg_computation_time": 0.0001365,
+    "avg_dijkstra_time": 4.96665e-05,
+    "avg_route_construction_time": 6.0917e-05,
+    "avg_optimization_time": 6.9585e-06,
+    "avg_total_distance": 212.977,
+    "avg_locations_served": 6,
+    "avg_total_priority": 25
+  },
+  {
+    "num_nodes": 100,
+    "num_edges": 200,
+    "num_vehicles": 3,
+    "avg_computation_time": 0.000254104,
+    "avg_dijkstra_time": 9.5042e-05,
+    "avg_route_construction_time": 0.000127772,
+    "avg_optimization_time": 1.0792e-05,
+    "avg_total_distance": 241.584,
+    "avg_locations_served": 11.5,
+    "avg_total_priority": 48
+  },
+  {
+    "num_nodes": 250,
+    "num_edges": 500,
+    "num_vehicles": 5,
+    "avg_computation_time": 0.000582625,
+    "avg_dijkstra_time": 0.000206187,
+    "avg_route_construction_time": 0.000337541,
+    "avg_optimization_time": 1.44585e-05,
+    "avg_total_distance": 114.167,
+    "avg_locations_served": 14,
+    "avg_total_priority": 56.5
+  },
+  {
+    "num_nodes": 500,
+    "num_edges": 1000,
+    "num_vehicles": 5,
+    "avg_computation_time": 0.00140569,
+    "avg_dijkstra_time": 0.000425979,
+    "avg_route_construction_time": 0.00089802,
+    "avg_optimization_time": 1.8229e-05,
+    "avg_total_distance": 207.13,
+    "avg_locations_served": 15.5,
+    "avg_total_priority": 69
+  }
+]

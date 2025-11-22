@@ -1,0 +1,12 @@
+{
+  "routes": {
+    "1": [0, 1, 2, 0],
+    "2": [0, 4, 3, 0]
+  },
+  "metrics": {
+    "computation_time": 1.7625e-05,
+    "dijkstra_time": 3.75e-06,
+    "route_construction_time": 3.792e-06,
+    "optimization_time": 2.25e-06
+  }
+}
