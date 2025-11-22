@@ -41,40 +41,40 @@ Graph loadGraphFromJSON(const string& filename) {
     file.close();
     
     // Parse nodes
-    int nodesPos = content.find("\"nodes\"");
-    if (nodesPos != string::npos) {
-        int start = content.find('[', nodesPos);
-        int end = content.find(']', start);
+    int nodesPos = (int)content.find("\"nodes\"");
+    if (nodesPos != (int)string::npos) {
+        int start = (int)content.find('[', nodesPos);
+        int end = (int)content.find(']', start);
         string nodesStr = content.substr(start + 1, end - start - 1);
         
         int nodeStart = 0;
-        while ((nodeStart = nodesStr.find('{', nodeStart)) != string::npos) {
-            int nodeEnd = nodesStr.find('}', nodeStart);
+        while ((nodeStart = (int)nodesStr.find('{', nodeStart)) != (int)string::npos) {
+            int nodeEnd = (int)nodesStr.find('}', nodeStart);
             string nodeStr = nodesStr.substr(nodeStart, nodeEnd - nodeStart + 1);
             
             int id = 0, demand = 0, priority = 0;
             
             // Extract id
-            int idPos = nodeStr.find("\"id\"");
-            if (idPos != string::npos) {
-                int colon = nodeStr.find(':', idPos);
-                int comma = nodeStr.find_first_of(",}", colon);
+            int idPos = (int)nodeStr.find("\"id\"");
+            if (idPos != (int)string::npos) {
+                int colon = (int)nodeStr.find(':', idPos);
+                int comma = (int)nodeStr.find_first_of(",}", colon);
                 id = stoi(nodeStr.substr(colon + 1, comma - colon - 1));
             }
             
             // Extract demand
-            int demandPos = nodeStr.find("\"demand\"");
-            if (demandPos != string::npos) {
-                int colon = nodeStr.find(':', demandPos);
-                int comma = nodeStr.find_first_of(",}", colon);
+            int demandPos = (int)nodeStr.find("\"demand\"");
+            if (demandPos != (int)string::npos) {
+                int colon = (int)nodeStr.find(':', demandPos);
+                int comma = (int)nodeStr.find_first_of(",}", colon);
                 demand = stoi(nodeStr.substr(colon + 1, comma - colon - 1));
             }
             
             // Extract priority
-            int priorityPos = nodeStr.find("\"priority\"");
-            if (priorityPos != string::npos) {
-                int colon = nodeStr.find(':', priorityPos);
-                int comma = nodeStr.find_first_of(",}", colon);
+            int priorityPos = (int)nodeStr.find("\"priority\"");
+            if (priorityPos != (int)string::npos) {
+                int colon = (int)nodeStr.find(':', priorityPos);
+                int comma = (int)nodeStr.find_first_of(",}", colon);
                 priority = stoi(nodeStr.substr(colon + 1, comma - colon - 1));
             }
             
@@ -84,49 +84,49 @@ Graph loadGraphFromJSON(const string& filename) {
     }
     
     // Parse edges
-    int edgesPos = content.find("\"edges\"");
-    if (edgesPos != string::npos) {
-        int start = content.find('[', edgesPos);
-        int end = content.find(']', start);
+    int edgesPos = (int)content.find("\"edges\"");
+    if (edgesPos != (int)string::npos) {
+        int start = (int)content.find('[', edgesPos);
+        int end = (int)content.find(']', start);
         string edgesStr = content.substr(start + 1, end - start - 1);
         
         int edgeStart = 0;
-        while ((edgeStart = edgesStr.find('{', edgeStart)) != string::npos) {
-            int edgeEnd = edgesStr.find('}', edgeStart);
+        while ((edgeStart = (int)edgesStr.find('{', edgeStart)) != (int)string::npos) {
+            int edgeEnd = (int)edgesStr.find('}', edgeStart);
             string edgeStr = edgesStr.substr(edgeStart, edgeEnd - edgeStart + 1);
             
             int u = 0, v = 0;
             double cost = 0.0, reliability = 1.0;
             
             // Extract u
-            int uPos = edgeStr.find("\"u\"");
-            if (uPos != string::npos) {
-                int colon = edgeStr.find(':', uPos);
-                int comma = edgeStr.find(',', colon);
+            int uPos = (int)edgeStr.find("\"u\"");
+            if (uPos != (int)string::npos) {
+                int colon = (int)edgeStr.find(':', uPos);
+                int comma = (int)edgeStr.find(',', colon);
                 u = stoi(edgeStr.substr(colon + 1, comma - colon - 1));
             }
             
             // Extract v
-            int vPos = edgeStr.find("\"v\"");
-            if (vPos != string::npos) {
-                int colon = edgeStr.find(':', vPos);
-                int comma = edgeStr.find(',', colon);
+            int vPos = (int)edgeStr.find("\"v\"");
+            if (vPos != (int)string::npos) {
+                int colon = (int)edgeStr.find(':', vPos);
+                int comma = (int)edgeStr.find(',', colon);
                 v = stoi(edgeStr.substr(colon + 1, comma - colon - 1));
             }
             
             // Extract cost
-            int costPos = edgeStr.find("\"cost\"");
-            if (costPos != string::npos) {
-                int colon = edgeStr.find(':', costPos);
-                int comma = edgeStr.find(',', colon);
+            int costPos = (int)edgeStr.find("\"cost\"");
+            if (costPos != (int)string::npos) {
+                int colon = (int)edgeStr.find(':', costPos);
+                int comma = (int)edgeStr.find(',', colon);
                 cost = stod(edgeStr.substr(colon + 1, comma - colon - 1));
             }
             
             // Extract reliability
-            int relPos = edgeStr.find("\"reliability\"");
-            if (relPos != string::npos) {
-                int colon = edgeStr.find(':', relPos);
-                int comma = edgeStr.find_first_of(",}", colon);
+            int relPos = (int)edgeStr.find("\"reliability\"");
+            if (relPos != (int)string::npos) {
+                int colon = (int)edgeStr.find(':', relPos);
+                int comma = (int)edgeStr.find_first_of(",}", colon);
                 reliability = stod(edgeStr.substr(colon + 1, comma - colon - 1));
             }
             
@@ -154,32 +154,32 @@ vector<Vehicle> loadVehiclesFromJSON(const string& filename) {
     file.close();
     
     // Parse vehicles
-    int vehiclesPos = content.find("\"vehicles\"");
-    if (vehiclesPos != string::npos) {
-        int start = content.find('[', vehiclesPos);
-        int end = content.find(']', start);
+    int vehiclesPos = (int)content.find("\"vehicles\"");
+    if (vehiclesPos != (int)string::npos) {
+        int start = (int)content.find('[', vehiclesPos);
+        int end = (int)content.find(']', start);
         string vehiclesStr = content.substr(start + 1, end - start - 1);
         
         int vehicleStart = 0;
-        while ((vehicleStart = vehiclesStr.find('{', vehicleStart)) != string::npos) {
-            int vehicleEnd = vehiclesStr.find('}', vehicleStart);
+        while ((vehicleStart = (int)vehiclesStr.find('{', vehicleStart)) != (int)string::npos) {
+            int vehicleEnd = (int)vehiclesStr.find('}', vehicleStart);
             string vehicleStr = vehiclesStr.substr(vehicleStart, vehicleEnd - vehicleStart + 1);
             
             int id = 0, capacity = 0;
             
             // Extract id
-            int idPos = vehicleStr.find("\"id\"");
-            if (idPos != string::npos) {
-                int colon = vehicleStr.find(':', idPos);
-                int comma = vehicleStr.find_first_of(",}", colon);
+            int idPos = (int)vehicleStr.find("\"id\"");
+            if (idPos != (int)string::npos) {
+                int colon = (int)vehicleStr.find(':', idPos);
+                int comma = (int)vehicleStr.find_first_of(",}", colon);
                 id = stoi(vehicleStr.substr(colon + 1, comma - colon - 1));
             }
             
             // Extract capacity
-            int capPos = vehicleStr.find("\"capacity\"");
-            if (capPos != string::npos) {
-                int colon = vehicleStr.find(':', capPos);
-                int comma = vehicleStr.find_first_of(",}", colon);
+            int capPos = (int)vehicleStr.find("\"capacity\"");
+            if (capPos != (int)string::npos) {
+                int colon = (int)vehicleStr.find(':', capPos);
+                int comma = (int)vehicleStr.find_first_of(",}", colon);
                 capacity = stoi(vehicleStr.substr(colon + 1, comma - colon - 1));
             }
             
@@ -211,11 +211,11 @@ void saveResultsToJSON(const string& filename,
         
         for (int j = 0; j < (int)vehicle.route.size(); j++) {
             file << vehicle.route[j];
-            if (j < vehicle.route.size() - 1) file << ", ";
+            if (j < (int)vehicle.route.size() - 1) file << ", ";
         }
         file << "]";
         
-        if (i < vehicles.size() - 1) file << ",";
+        if (i < (int)vehicles.size() - 1) file << ",";
         file << "\n";
     }
     
@@ -236,7 +236,7 @@ void saveResultsToJSON(const string& filename,
         file << "      \"final_score\": " << cost.finalScore << "\n";
         file << "    }";
         
-        if (i < vehicles.size() - 1) file << ",";
+        if (i < (int)vehicles.size() - 1) file << ",";
         file << "\n";
     }
     
