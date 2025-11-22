@@ -10,12 +10,22 @@
 #include <unordered_map>
 #include <string>
 #include <memory>
-#include <optional>
 #include <cmath>
 
 using namespace std;
 
 namespace DisasterRelief {
+
+/**
+ * Result structure for edge cost queries
+ */
+struct EdgeCostResult {
+    double cost;
+    bool found;
+    
+    EdgeCostResult() : cost(0.0), found(false) {}
+    EdgeCostResult(double c) : cost(c), found(true) {}
+};
 
 /**
  * Node represents a location in the disaster area
@@ -108,8 +118,8 @@ public:
     // Get all neighbors of a node
     const vector<Neighbor>& getNeighbors(int nodeId) const;
     
-    // Get node by ID
-    optional<Node> getNode(int nodeId) const;
+    // Get node by ID (returns nullptr if not found)
+    const Node* getNode(int nodeId) const;
     
     // Get number of nodes
     size_t numNodes() const { return nodes.size(); }
@@ -121,7 +131,7 @@ public:
     vector<int> getAllNodeIds() const;
     
     // Get edge cost between two nodes
-    optional<double> getEdgeCost(int u, int v, bool useReliability = true) const;
+    EdgeCostResult getEdgeCost(int u, int v, bool useReliability = true) const;
     
     // Remove edge (for dynamic replanning)
     void removeEdge(int u, int v);

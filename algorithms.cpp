@@ -92,8 +92,8 @@ vector<int> ShortestPathAlgorithms::reconstructPath(
 double ShortestPathAlgorithms::euclideanDistance(
     const Graph& graph, int node1, int node2
 ) {
-    auto n1 = graph.getNode(node1);
-    auto n2 = graph.getNode(node2);
+    const Node* n1 = graph.getNode(node1);
+    const Node* n2 = graph.getNode(node2);
     
     if (!n1 || !n2) return 0.0;
     
@@ -184,11 +184,11 @@ DynamicProgramming::knapsackCapacityOptimization(
     // Fill DP table
     for (int i = 1; i <= n; i++) {
         int locId = locations[i - 1];
-        auto nodeOpt = graph.getNode(locId);
-        if (!nodeOpt) continue;
+        const Node* node = graph.getNode(locId);
+        if (!node) continue;
         
-        int demand = nodeOpt->demand;
-        int priority = nodeOpt->priority;
+        int demand = node->demand;
+        int priority = node->priority;
         
         for (int w = 0; w <= capacity; w++) {
             // Don't take item
@@ -207,9 +207,9 @@ DynamicProgramming::knapsackCapacityOptimization(
     for (int i = n; i > 0; i--) {
         if (dp[i][w] != dp[i-1][w]) {
             selected.push_back(locations[i-1]);
-            auto nodeOpt = graph.getNode(locations[i-1]);
-            if (nodeOpt) {
-                w -= nodeOpt->demand;
+            const Node* node = graph.getNode(locations[i-1]);
+            if (node) {
+                w -= node->demand;
             }
         }
     }
@@ -240,8 +240,8 @@ GreedyAlgorithms::priorityGreedyRouting(
     }
     
     sort(locations.begin(), locations.end(), [&graph](int a, int b) {
-        auto nodeA = graph.getNode(a);
-        auto nodeB = graph.getNode(b);
+        const Node* nodeA = graph.getNode(a);
+        const Node* nodeB = graph.getNode(b);
         if (!nodeA || !nodeB) return false;
         return nodeA->priority > nodeB->priority;
     });
@@ -265,11 +265,11 @@ GreedyAlgorithms::priorityGreedyRouting(
             for (int locId : locations) {
                 if (visited.count(locId)) continue;
                 
-                auto nodeOpt = graph.getNode(locId);
-                if (!nodeOpt) continue;
+                const Node* node = graph.getNode(locId);
+                if (!node) continue;
                 
                 // Check capacity constraint
-                if (vehicle.currentLoad + nodeOpt->demand > vehicle.capacity) {
+                if (vehicle.currentLoad + node->demand > vehicle.capacity) {
                     continue;
                 }
                 
@@ -277,7 +277,7 @@ GreedyAlgorithms::priorityGreedyRouting(
                 double dist = distances[locId];
                 if (isinf(dist)) continue;
                 
-                double score = nodeOpt->priority / (dist + 1.0);
+                double score = node->priority / (dist + 1.0);
                 
                 if (score > bestScore) {
                     bestScore = score;
@@ -291,9 +291,9 @@ GreedyAlgorithms::priorityGreedyRouting(
             routes[vehicle.id].push_back(bestNode);
             visited.insert(bestNode);
             
-            auto nodeOpt = graph.getNode(bestNode);
-            if (nodeOpt) {
-                vehicle.currentLoad += nodeOpt->demand;
+            const Node* node = graph.getNode(bestNode);
+            if (node) {
+                vehicle.currentLoad += node->demand;
             }
         }
         
@@ -323,9 +323,9 @@ GreedyAlgorithms::nearestNeighborTSP(
         double minDist = numeric_limits<double>::infinity();
         
         for (int loc : unvisited) {
-            auto costOpt = graph.getEdgeCost(current, loc);
-            if (costOpt && *costOpt < minDist) {
-                minDist = *costOpt;
+            EdgeCostResult costResult = graph.getEdgeCost(current, loc);
+            if (costResult.found && costResult.cost < minDist) {
+                minDist = costResult.cost;
                 nearest = loc;
             }
         }
@@ -384,9 +384,9 @@ double MultiObjectiveOptimization::calculateRouteScore(
         unreliability += (1.0 - edgeReliability);
         
         // Priority-time for destination
-        auto nodeOpt = graph.getNode(v);
-        if (nodeOpt && nodeOpt->priority > 0) {
-            priorityTime += nodeOpt->priority * totalTime;
+        const Node* node = graph.getNode(v);
+        if (node && node->priority > 0) {
+            priorityTime += node->priority * totalTime;
         }
     }
     
@@ -426,18 +426,18 @@ MultiObjectiveOptimization::evaluateSolution(
         
         // Calculate distance
         for (size_t i = 0; i < route.size() - 1; i++) {
-            auto costOpt = graph.getEdgeCost(route[i], route[i + 1], false);
-            if (costOpt) {
-                metrics.totalDistance += *costOpt;
+            EdgeCostResult costResult = graph.getEdgeCost(route[i], route[i + 1], false);
+            if (costResult.found) {
+                metrics.totalDistance += costResult.cost;
             }
         }
         
         // Count served locations
         for (int nodeId : route) {
-            auto nodeOpt = graph.getNode(nodeId);
-            if (nodeOpt && nodeOpt->priority > 0 && !locationsServed.count(nodeId)) {
+            const Node* node = graph.getNode(nodeId);
+            if (node && node->priority > 0 && !locationsServed.count(nodeId)) {
                 locationsServed.insert(nodeId);
-                metrics.totalPriority += nodeOpt->priority;
+                metrics.totalPriority += node->priority;
             }
         }
     }

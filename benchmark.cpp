@@ -76,8 +76,8 @@ Graph DatasetGenerator::generateRandomGraph(
         }
         
         // Calculate cost based on Euclidean distance
-        auto nodeU = graph.getNode(u);
-        auto nodeV = graph.getNode(v);
+        const Node* nodeU = graph.getNode(u);
+        const Node* nodeV = graph.getNode(v);
         if (!nodeU || !nodeV) continue;
         
         double dx = nodeU->x - nodeV->x;
@@ -102,8 +102,8 @@ Graph DatasetGenerator::generateRandomGraph(
             continue;
         }
         
-        auto nodeU = graph.getNode(u);
-        auto nodeV = graph.getNode(v);
+        const Node* nodeU = graph.getNode(u);
+        const Node* nodeV = graph.getNode(v);
         if (!nodeU || !nodeV) continue;
         
         double dx = nodeU->x - nodeV->x;

@@ -4,9 +4,9 @@
     "2": [0, 4, 3, 0]
   },
   "metrics": {
-    "computation_time": 0.000121,
-    "dijkstra_time": 4.55e-05,
-    "route_construction_time": 1.0125e-05,
-    "optimization_time": 5.666e-06
+    "computation_time": 1.9458e-05,
+    "dijkstra_time": 3.75e-06,
+    "route_construction_time": 3.833e-06,
+    "optimization_time": 2.5e-06
   }
 }

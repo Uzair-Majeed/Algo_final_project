@@ -199,18 +199,18 @@ DisasterReliefSolver::getRouteDetails(int vehicleId) const {
         int u = details.route[i];
         int v = details.route[i + 1];
         
-        auto costOpt = graph.getEdgeCost(u, v, false);
-        if (costOpt) {
-            details.totalDistance += *costOpt;
+        EdgeCostResult costResult = graph.getEdgeCost(u, v, false);
+        if (costResult.found) {
+            details.totalDistance += costResult.cost;
         }
     }
     
     for (int nodeId : details.route) {
         if (nodeId != depot) {
-            auto nodeOpt = graph.getNode(nodeId);
-            if (nodeOpt) {
-                details.totalDemand += nodeOpt->demand;
-                details.totalPriority += nodeOpt->priority;
+            const Node* node = graph.getNode(nodeId);
+            if (node) {
+                details.totalDemand += node->demand;
+                details.totalPriority += node->priority;
                 details.locationsServed++;
             }
         }

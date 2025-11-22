@@ -47,12 +47,12 @@ const vector<Neighbor>& Graph::getNeighbors(int nodeId) const {
     return EMPTY_NEIGHBORS;
 }
 
-optional<Node> Graph::getNode(int nodeId) const {
+const Node* Graph::getNode(int nodeId) const {
     auto it = nodes.find(nodeId);
     if (it != nodes.end()) {
-        return it->second;
+        return &(it->second);
     }
-    return nullopt;
+    return nullptr;
 }
 
 vector<int> Graph::getAllNodeIds() const {
@@ -64,22 +64,22 @@ vector<int> Graph::getAllNodeIds() const {
     return ids;
 }
 
-optional<double> Graph::getEdgeCost(int u, int v, bool useReliability) const {
+EdgeCostResult Graph::getEdgeCost(int u, int v, bool useReliability) const {
     auto it = adjacencyList.find(u);
     if (it == adjacencyList.end()) {
-        return nullopt;
+        return EdgeCostResult();
     }
     
     for (const auto& neighbor : it->second) {
         if (neighbor.nodeId == v) {
             if (useReliability) {
-                return neighbor.cost * (2.0 - neighbor.reliability);
+                return EdgeCostResult(neighbor.cost * (2.0 - neighbor.reliability));
             }
-            return neighbor.cost;
+            return EdgeCostResult(neighbor.cost);
         }
     }
     
-    return nullopt;
+    return EdgeCostResult();
 }
 
 void Graph::removeEdge(int u, int v) {
