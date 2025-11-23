@@ -1,21 +1,7 @@
-/**
- * main.cpp - Disaster Response Routing & Resource Allocation System
- * 
- * This program:
- * 1. Loads graph data from input.json
- * 2. Allocates locations to vehicles using priority-based greedy algorithm
- * 3. Optimizes routes using 2-opt
- * 4. Computes costs using multi-objective function
- * 5. Outputs results to console and output.json
- * 
- * Compile: g++ -std=c++17 main.cpp -o disaster_relief
- * Run: ./disaster_relief
- */
-
-#include "graph.h"
-#include "algorithms.h"
-#include "Allocation.h"
-#include "Utils.h"
+#include "Graph.h"
+#include "Greedy_Allocation.h"
+#include "Multi_Objective_Algorithm.h"
+#include "Two_Opt_Algorithm.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -24,8 +10,6 @@
 
 using namespace std;
 
-// Simple JSON parser for loading input
-// For production, consider using nlohmann/json library
 Graph loadGraphFromJSON(const string& filename) {
     Graph graph;
     ifstream file(filename);
@@ -40,7 +24,6 @@ Graph loadGraphFromJSON(const string& filename) {
     }
     file.close();
     
-    // Parse nodes
     int nodesPos = (int)content.find("\"nodes\"");
     if (nodesPos != (int)string::npos) {
         int start = (int)content.find('[', nodesPos);
@@ -245,94 +228,80 @@ void saveResultsToJSON(const string& filename,
     file.close();
 }
 
+
 int main() {
     try {
         cout << "========================================" << endl;
         cout << "Disaster Response Routing System" << endl;
         cout << "========================================" << endl << endl;
         
-        // Load input from JSON file
         cout << "Loading input from input.json..." << endl;
         Graph graph = loadGraphFromJSON("input.json");
         vector<Vehicle> vehicles = loadVehiclesFromJSON("input.json");
         
-        cout << "Graph loaded: " << graph.numNodes() << " nodes, " 
-             << graph.numEdges() << " edges" << endl;
+        cout << "Graph loaded: " << graph.numNodes() << " nodes, " << graph.numEdges() << " edges" << endl;
         cout << "Vehicles: " << vehicles.size() << endl << endl;
         
-        // Step 1: Allocate vehicles using priority-based greedy algorithm
-        cout << "Step 1: Allocating locations to vehicles..." << endl;
         vehicles = allocateVehicles(graph, vehicles);
         
-        // Step 2: Optimize routes using 2-opt
-        cout << "Step 2: Optimizing routes with 2-opt..." << endl;
         for (auto& vehicle : vehicles) {
             vehicle.route = twoOpt(graph, vehicle.route);
         }
-        
-        // Step 3: Calculate and display results
-        cout << "Step 3: Calculating costs..." << endl << endl;
         
         cout << "========================================" << endl;
         cout << "SOLUTION" << endl;
         cout << "========================================" << endl << endl;
         
-        // Print vehicle assignments
-        cout << "Vehicle Assignments:" << endl;
+        double totalScore = 0.0;
+        double TR = 0.0; //total reliability
+        int TPN = 0; //total priority Nodes
+        int PS = 0; //priority satisfied
+
         for (const auto& vehicle : vehicles) {
-            cout << "Vehicle " << vehicle.id << ": ";
-            bool first = true;
+            RouteCost cost = calculateRouteCost(graph, vehicle.route, vehicle.capacity, vehicle.currentLoad);
+            totalScore += cost.finalScore;
+
+            double r = 1.0;
+            
+            for (int i = 0; i < vehicle.route.size() - 1; i++) {
+                r *= graph.getEdgeReliability(vehicle.route[i], vehicle.route[i + 1]);
+            }
+
+            TR += r;
+
             for (int nodeId : vehicle.route) {
-                if (nodeId != 0 || vehicle.route.size() == 1) {
-                    if (!first) cout << " ";
-                    cout << nodeId;
-                    first = false;
+                const Node* node = graph.getNode(nodeId);
+                
+                if (node && node->priority > 0) {
+                    TPN++;
+                    if (node->demand > 0) PS++;
                 }
             }
-            cout << endl;
-        }
-        cout << endl;
-        
-        // Print optimized routes
-        cout << "Optimized Routes:" << endl;
-        for (const auto& vehicle : vehicles) {
-            cout << "Vehicle " << vehicle.id << " route: ";
-            for (int i = 0; i < (int)vehicle.route.size(); i++) {
+
+            cout << "Vehicle " << vehicle.id << " Route : ";
+            for (int i = 0; i < vehicle.route.size(); i++) {
                 cout << vehicle.route[i];
-                if (i < (int)vehicle.route.size() - 1) cout << " -> ";
+                
+                if (i < vehicle.route.size() - 1) cout << " -> ";
             }
+
             cout << endl;
+            cout << "Delivered Demand : " << vehicle.currentLoad << endl;
+            cout << "Total Cost : " << fixed << setprecision(2) << cost.finalScore << endl << endl;
         }
-        cout << endl;
-        
-        // Print cost breakdown
-        cout << "Cost Breakdown:" << endl;
-        double totalScore = 0.0;
-        for (const auto& vehicle : vehicles) {
-            RouteCost cost = calculateRouteCost(graph, vehicle.route, 
-                                               vehicle.capacity, vehicle.currentLoad);
-            totalScore += cost.finalScore;
-            
-            cout << "Vehicle " << vehicle.id << ":" << endl;
-            cout << "  Time: " << fixed << setprecision(2) 
-                 << cost.totalTime << endl;
-            cout << "  Reliability Penalty: " << setprecision(4) 
-                 << cost.reliabilityPenalty << endl;
-            cout << "  Idle: " << setprecision(2) 
-                 << cost.idleTime << endl;
-            cout << "  Final Score: " << setprecision(4) 
-                 << cost.finalScore << endl;
-        }
-        cout << endl;
-        cout << "Total Score: " << setprecision(4) << totalScore << endl;
-        cout << endl;
-        
-        // Save results to JSON file
-        cout << "Saving results to output.json..." << endl;
+
+        double avgR = TR / vehicles.size();
+
+        double pScore = (TPN > 0) ? (double)PS / TPN : 1.0;
+
+        cout << "Total Combined Cost : " << fixed << setprecision(2) << totalScore << endl;
+        cout << "Average Reliability : " << fixed << setprecision(3) << avgR << endl;
+        cout << "Priority Satisfaction Score : " << fixed << setprecision(2) << pScore << endl;
+
         saveResultsToJSON("output.json", vehicles, graph);
-        
-        cout << "Done!" << endl;
-        
+
+        cout << "\nDone!" << endl;
+
     } catch (const exception& e) {
         cerr << "Error: " << e.what() << endl;
         return 1;

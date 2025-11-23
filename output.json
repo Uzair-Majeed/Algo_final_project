@@ -1,16 +1,16 @@
 {
   "routes": {
-    "1": [0, 11, 13, 8, 0],
+    "1": [0, 11, 13, 4, 0],
     "2": [0, 1, 5, 6, 0],
-    "3": [0, 9, 10, 0],
-    "4": [0, 3, 7, 0]
+    "3": [0, 3, 2, 0],
+    "4": [0, 9, 10, 8, 0]
   },
   "costs": {
     "1": {
-      "total_time": 6.00,
-      "reliability_penalty": 0.15,
+      "total_time": 7.00,
+      "reliability_penalty": 0.25,
       "idle_time": 0.00,
-      "final_score": 3.65
+      "final_score": 4.27
     },
     "2": {
       "total_time": 21.00,
@@ -19,16 +19,16 @@
       "final_score": 12.76
     },
     "3": {
+      "total_time": 14.00,
+      "reliability_penalty": 0.42,
+      "idle_time": 0.00,
+      "final_score": 8.53
+    },
+    "4": {
       "total_time": 3.00,
       "reliability_penalty": 0.10,
       "idle_time": 0.00,
       "final_score": 1.83
-    },
-    "4": {
-      "total_time": 10.00,
-      "reliability_penalty": 0.25,
-      "idle_time": 0.00,
-      "final_score": 6.08
     }
   }
 }
