@@ -11,67 +11,44 @@
 
 using namespace std;
 
+double cost(const Graph& graph, int x, int y) {
+    return graph.getEdgeCost(x, y);
+}
+
 vector<int> twoOpt(const Graph& graph, const vector<int>& route) {
 
-    if (route.size() <= 3){
-        return route;
-    } 
-
-    bool improved = true;
+   int n = route.size();
+    if (n <= 3) return route;
 
     vector<int> bestRoute = route;
+    bool improved = true;
 
     while (improved) {
         improved = false;
 
-        for (int i = 1; i < (int)bestRoute.size() - 2; i++) {
+        for (int i = 1; i < n - 2; i++) {
+            for (int j = i + 1; j < n - 1; j++) {
 
-            for (int j = i + 1; j < (int)bestRoute.size() - 1; j++) {
-            
-                double currCost = 0.0;
-                bool currValid = true;
+                int A = bestRoute[i - 1];
+                int B = bestRoute[i];
+                int C = bestRoute[j];
+                int D = bestRoute[j + 1];
 
-                for (int k = 0; k < (int)bestRoute.size() - 1; k++) {
-                    double cost = graph.getEdgeCost(bestRoute[k], bestRoute[k + 1]);
-                    
-                    if (cost < 0) { 
-                        currValid = false; 
-                        break; 
-                    }
+                double before = cost(graph,A, B) + cost(graph,C, D);
+                double after  = cost(graph,A, C) + cost(graph,B, D);
 
-                    currCost += cost;
-                }
-                
-                if (!currValid) continue;
-                
-                vector<int> newRoute = bestRoute;
-                
-                reverse(newRoute.begin() + i, newRoute.begin() + j + 1);
-                
-                double newCost = 0.0;
-                bool valid = true;
-                
-                for (int k = 0; k < (int)newRoute.size() - 1; k++) {
-                    double cost = graph.getEdgeCost(newRoute[k], newRoute[k + 1]);
-                    
-                    if (cost < 0) { 
-                        valid = false; 
-                        break; 
-                    }
-                    
-                    newCost += cost;
-                }
-                
-                if (valid && newCost < currCost) { 
-                    bestRoute = newRoute; 
-                    improved = true; 
-                    break; 
+                if (before < 0 || after < 0) continue;
+
+                if (after < before) {
+                    reverse(bestRoute.begin() + i, bestRoute.begin() + j + 1);
+                    improved = true;
+                    break;
                 }
             }
-            
             if (improved) break;
         }
     }
+
     return bestRoute;
 }
 
