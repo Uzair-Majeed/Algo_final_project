@@ -8,9 +8,11 @@
 #include <unordered_map>
 #include <algorithm>
 #include <limits>
+#include <chrono>
+#include <iostream>
 
 using namespace std;
-
+using namespace std::chrono;
 
 
 struct Vehicle {
@@ -58,7 +60,8 @@ vector<Vehicle> allocateVehicles(const Graph& graph, const vector<Vehicle>& vehi
     });
 
 
-
+    double totalAstarTimeNs = 0; // nanoseconds
+    int astarCalls = 0;
     for (int nodeId : N){
 
         const Node* node = graph.getNode(nodeId); 
@@ -76,7 +79,13 @@ vector<Vehicle> allocateVehicles(const Graph& graph, const vector<Vehicle>& vehi
 
                 int lastNode = curr.route.back();
 
-                auto path = astar(graph,lastNode,nodeId);
+                
+                auto start = high_resolution_clock::now();
+                auto path = astar(graph, lastNode, nodeId);
+                auto end = high_resolution_clock::now();
+            
+                totalAstarTimeNs += duration_cast<nanoseconds>(end - start).count();
+                astarCalls++;
 
                 if (path.empty()) continue;
 
@@ -114,6 +123,10 @@ vector<Vehicle> allocateVehicles(const Graph& graph, const vector<Vehicle>& vehi
         v.route.push_back(0);
     }
 
+    if (astarCalls > 0) {
+        double avgTimeNs = totalAstarTimeNs / astarCalls;
+        cout << "Average A* runtime: " << avgTimeNs << " ns" << endl;
+    }
     return V;
 }
 

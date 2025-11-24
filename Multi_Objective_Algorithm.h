@@ -27,26 +27,26 @@ RouteCost calculateRouteCost(const Graph& graph, const vector<int>& route, int v
         return cost;
     }
     
-    double totalReliability = 1.0;
-
-    //finding all edge reliabilities product and total time sume
-    for (int i = 0; i < (int)route.size() - 1; i++) {
+    double totalReliabilityLog = 0.0; // sum of logs
+    
+    for (int i = 0; i < route.size() - 1; i++) {
         int u = route[i];
         int v = route[i + 1];
 
         double EC = graph.getEdgeCost(u, v);
-
-        double ER = graph.getEdgeReliability(u, v);
+        double ER = max(graph.getEdgeReliability(u, v), 1e-6); // clamp to >0
 
         if (EC >= 0) {
             cost.totalTime += EC;
-            totalReliability *= ER;
+            totalReliabilityLog += log(ER);  // log-sum
         }
     }
 
+    double totalReliability = exp(totalReliabilityLog);  // convert back
+    
     cost.reliabilityPenalty = 1.0 - totalReliability;
 
-    cost.idleTime = vehicleCapacity - deliveredLoad;
+    cost.idleTime = max(0, vehicleCapacity - deliveredLoad);
 
     cost.finalScore = ALPHA * cost.totalTime + BETA * cost.reliabilityPenalty + GAMMA * cost.idleTime;
 
