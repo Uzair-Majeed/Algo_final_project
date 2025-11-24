@@ -60,6 +60,12 @@ public:
         return nullptr;
     }
 
+    Node* getNode(int nodeId) {
+        auto it = nodes.find(nodeId);
+        if (it != nodes.end()) return &(it->second);
+        return nullptr;
+    }
+
     vector<int> getAllNodeIds() const {
         vector<int> ids;
         for (const auto& pair : nodes) ids.push_back(pair.first);

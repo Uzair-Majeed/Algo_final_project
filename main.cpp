@@ -12,6 +12,7 @@
 using namespace std;
 using namespace std::chrono;
 
+#pragma region FileHandling
 
 Graph loadGraphFromJSON(const string& filename) {
     Graph graph;
@@ -230,7 +231,7 @@ void saveResultsToJSON(const string& filename,
     file << "}\n";
     file.close();
 }
-
+#pragma endregion
 
 int main() {
     vector<string> datasetFiles = {
@@ -245,10 +246,10 @@ int main() {
 
     for (const auto& filename : datasetFiles) {
         try {
-            cout << "========================================" << endl;
+            cout << "\n\n===================================================" << endl;
             cout << "Dataset: " << filename << endl;
-            cout << "Disaster Response Routing System" << endl;
-            cout << "========================================" << endl << endl;
+            cout << "Disaster Response Dawooo Bus" << endl;
+            cout << "===================================================" << endl << endl;
 
             cout << "Loading input from " << filename << "..." << endl;
             Graph graph = loadGraphFromJSON(filename);
@@ -259,97 +260,118 @@ int main() {
             cout << "Vehicles: " << vehicles.size() << endl << endl;
 
             
-            cout << "========================================" << endl;
-            cout << "SOLUTION" << endl;
-            cout << "========================================" << endl << endl;
+            cout << "===================================================" << endl;
+            cout << "Starting Engine" << endl;
+            cout << "===================================================" << endl << endl;
 
-            // --- Measure Greedy Allocation ---
-            auto startAlloc = high_resolution_clock::now();
+            
+            cout << "\n===================================================" << endl;
+            cout << "Step 1 : Allocating Routes to Vehicles..." << endl;
+            cout << "===================================================" << endl << endl;
+            
+            // --- 1) Allocate Vehicles ---
+            auto startA = high_resolution_clock::now();
             
             vehicles = allocateVehicles(graph, vehicles);
             
-            auto endAlloc = high_resolution_clock::now();
+            auto endA = high_resolution_clock::now();
             
-            double allocNs = duration_cast<nanoseconds>(endAlloc - startAlloc).count();
+            double timeA = duration_cast<nanoseconds>(endA - startA).count();
             
-            cout << "Greedy Allocation runtime: " << allocNs << " ns" << endl;
+            cout << "Greedy Allocation runtime: " << timeA << " ns" << endl;
 
-            // --- Measure 2-Opt ---
-            auto startTwoOpt = high_resolution_clock::now();
+            // --- 2) Run 2 opt route optimization---
+            
+            cout << "\n===================================================" << endl;
+            cout << "Step 2 :Optimizing Routes Further..." << endl;
+            cout << "===================================================" << endl << endl;
+            
+            auto startB = high_resolution_clock::now();
             
             for (auto& vehicle : vehicles) {
                 vehicle.route = twoOpt(graph, vehicle.route);
             }
             
-            auto endTwoOpt = high_resolution_clock::now();
+            auto endB = high_resolution_clock::now();
             
-            double totalTwoOptNs = duration_cast<nanoseconds>(endTwoOpt - startTwoOpt).count();
+            double timeB = duration_cast<nanoseconds>(endB - startB).count();
             
-            cout << "2-Opt total runtime: " << totalTwoOptNs << " ns" << endl;
+            cout << "2-Opt total runtime: " << timeB << " ns" << endl;
 
+            //3) calculate multi objected weighted score
 
-            double totalScore = 0.0, TR = 0.0;
-            int TPN = 0, PS = 0;
-            double totalEdgeReliabilitySum = 0.0;
-            int totalEdges = 0;
-
-            // --- Measure Multi-Objective Cost Calculation ---
-            auto startCost = high_resolution_clock::now();
-
-            for (auto& vehicle : vehicles) {
-                RouteCost cost = calculateRouteCost(graph, vehicle.route, vehicle.capacity, vehicle.currentLoad);
-                totalScore += cost.finalScore;
-
-                double routeReliabilityLog = 0.0;
-                for (int i = 0; i < vehicle.route.size() - 1; i++) {
-                    double ER = max(graph.getEdgeReliability(vehicle.route[i], vehicle.route[i + 1]), 1e-6);
-                    routeReliabilityLog += log(ER);
-
-                    totalEdgeReliabilitySum += ER;
-                    totalEdges++;
-                }
-                TR += exp(routeReliabilityLog);
-
-                for (int nodeId : vehicle.route) {
-                    const Node* node = graph.getNode(nodeId);
-                    if (node && node->priority > 0) {
-                        TPN++;
-                        if (node->demand > 0) PS++;
-                    }
-                }
-            }
-
-            auto endCost = high_resolution_clock::now();
+            cout << "\n===================================================" << endl;
+            cout << "Step 3 : Calculating Overall Results and Scores..." << endl;
+            cout << "=====================================================" << endl << endl;
             
-            double costNs = duration_cast<nanoseconds>(endCost - startCost).count();
+            double avgR = 0.0,pScore = 0.0,totalR = 0.0;
+            int totalE = 0,totalC = 0, totalPNodes = 0,servedPNodes = 0;
             
-            cout << "Multi-Objective Cost Calculation runtime: " << costNs << " ns\n\n" << endl;
-
-
-            // --- Print Vehicle Routes, Delivered Demand, and Total Cost ---
+            double timeC = 0.0;
+            
             for (const auto& vehicle : vehicles) {
-                RouteCost cost = calculateRouteCost(graph, vehicle.route, vehicle.capacity, vehicle.currentLoad);
+                
+                auto startC = high_resolution_clock::now();
+                
+                RouteCost cost = calculateRouteCost(graph, vehicle.route,vehicle.capacity, vehicle.currentLoad);
+                
+                auto endC = high_resolution_clock::now();
 
-                cout << "Vehicle " << vehicle.id << " Route: ";
+                timeC += duration_cast<nanoseconds>(endC - startC).count();
+                
+                cout << "\nVehicle " << vehicle.id << " Route : ";
+                
                 for (int i = 0; i < vehicle.route.size(); i++) {
                     cout << vehicle.route[i];
                     if (i < vehicle.route.size() - 1) cout << " -> ";
                 }
+            
                 cout << endl;
 
                 cout << "Delivered Demand : " << vehicle.currentLoad << endl;
-                cout << "Total Cost : " << fixed << setprecision(2) << cost.finalScore << endl << endl;
+                cout << "Total Cost : " << fixed << setprecision(2) << cost.finalScore << endl;
+
+                totalC += (int)cost.finalScore;
+
+                // Reliability accumulation
+    
+                for (int i = 0; i < vehicle.route.size() - 1; i++) {
+                    totalR += graph.getEdgeReliability(vehicle.route[i], vehicle.route[i+1]);
+                    totalE++;
+                }
+    
+                // Priority Score
+                for (int nodeId : vehicle.route) {
+                    if (nodeId == 0) continue; 
+                    
+                    Node* node = graph.getNode(nodeId);
+
+                    if (node && node->priority > 0) {
+                    totalPNodes++;
+
+                    if (vehicle.currentLoad > 0) servedPNodes++;
+                    }
+                }
             }
 
-            double avgR = (totalEdges > 0) ? (totalEdgeReliabilitySum / totalEdges) : 0.0;
-            double pScore = (TPN > 0) ? (double)PS / TPN : 1.0;
 
-            cout << "Total Combined Cost : " << fixed << setprecision(2) << totalScore << endl;
-            cout << "Average Edge Reliability : " << fixed << avgR << endl;
+
+            avgR = (totalE > 0) ? totalR / (double)totalE : 0.0;
+            pScore = (totalPNodes > 0) ? (double)servedPNodes / totalPNodes : 1.0;
+
+
+            cout << "\nTotal Combined Cost : " << fixed << setprecision(2) << totalC << endl;
+            cout << "Average Reliability : " << fixed << setprecision(3) << avgR << endl;
             cout << "Priority Satisfaction Score : " << fixed << setprecision(2) << pScore << endl;
+            
+            
+            cout << "\n\nAverage Multi Objective Weighted Scoring runtime: " << timeC / (double)vehicles.size() << " ns" << endl;
 
             saveResultsToJSON("output.json", vehicles, graph);
-            cout << "\nDone!" << endl << endl;
+            
+            cout << "\n===================================================" << endl;
+            cout << "Thank you for using Dawoo Express..." << endl;
+            cout << "===================================================" << endl << endl;
 
         } catch (const exception& e) {
             cerr << "Error: " << e.what() << endl;

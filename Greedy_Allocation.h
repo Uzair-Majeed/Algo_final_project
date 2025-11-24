@@ -60,8 +60,8 @@ vector<Vehicle> allocateVehicles(const Graph& graph, const vector<Vehicle>& vehi
     });
 
 
-    double totalAstarTimeNs = 0; // nanoseconds
-    int astarCalls = 0;
+    double sumTime = 0; // nanoseconds
+    int number = 0;
     for (int nodeId : N){
 
         const Node* node = graph.getNode(nodeId); 
@@ -84,8 +84,8 @@ vector<Vehicle> allocateVehicles(const Graph& graph, const vector<Vehicle>& vehi
                 auto path = astar(graph, lastNode, nodeId);
                 auto end = high_resolution_clock::now();
             
-                totalAstarTimeNs += duration_cast<nanoseconds>(end - start).count();
-                astarCalls++;
+                sumTime += duration_cast<nanoseconds>(end - start).count();
+                number++;
 
                 if (path.empty()) continue;
 
@@ -123,11 +123,12 @@ vector<Vehicle> allocateVehicles(const Graph& graph, const vector<Vehicle>& vehi
         v.route.push_back(0);
     }
 
-    if (astarCalls > 0) {
-        double avgTimeNs = totalAstarTimeNs / astarCalls;
-        cout << "Average A* runtime: " << avgTimeNs << " ns" << endl;
+    if (number > 0) {
+        double avgTime = sumTime / number;
+        cout << "Average A* runtime: " << avgTime << " ns" << endl;
     }
     return V;
 }
+
 
 #endif
