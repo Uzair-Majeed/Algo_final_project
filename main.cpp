@@ -240,9 +240,10 @@ int main() {
         "datasets/input2.json",
         "datasets/input3.json",
         "datasets/input4.json",
-        "datasets/input5.json",
-        "datasets/input6.json"
+        "datasets/input5.json"
     };
+
+    int i = 0;
 
     for (const auto& filename : datasetFiles) {
         try {
@@ -367,7 +368,8 @@ int main() {
             
             cout << "\n\nAverage Multi Objective Weighted Scoring runtime: " << timeC / (double)vehicles.size() << " ns" << endl;
 
-            saveResultsToJSON("output.json", vehicles, graph);
+            i++;
+            saveResultsToJSON("Outputs/output"+to_string(i) +".json", vehicles, graph);
             
             cout << "\n===================================================" << endl;
             cout << "Thank you for using Dawoo Express..." << endl;

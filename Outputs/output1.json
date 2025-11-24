@@ -1,0 +1,20 @@
+{
+  "routes": {
+    "1": [0, 1, 2, 0],
+    "2": [0, 3, 4, 0]
+  },
+  "costs": {
+    "1": {
+      "total_time": 38.00,
+      "reliability_penalty": 0.60,
+      "idle_time": 0.00,
+      "final_score": 22.92
+    },
+    "2": {
+      "total_time": 8.00,
+      "reliability_penalty": 0.10,
+      "idle_time": 1.00,
+      "final_score": 4.92
+    }
+  }
+}
